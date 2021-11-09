@@ -4,16 +4,18 @@ import { scaleLinear, scaleBand } from "d3-scale"
 import { max } from "d3-array"
 import { axisLeft, axisBottom} from 'd3-axis'
 import  randomstring  from "randomstring"
+import 'd3-transition'
+import { easeElastic, easeQuadInOut, easeBounce, easeLinear } from 'd3-ease'
 
 
 const data = [
   {
     name: 'boo',
-    number: 10
+    number: 90
   },
   {
     name: 'too',
-    number: 67
+    number: 167
   },
   {
     name: 'roo',
@@ -21,7 +23,7 @@ const data = [
   },
   {
     name: 'hoo',
-    number: 38
+    number: 88
   },
   {
     name: 'koo',
@@ -33,19 +35,19 @@ const data = [
   },
   {
     name: 'poo',
-    number: 59
+    number: 79
   },
   {
     name: 'lloo',
-    number: 59
+    number: 89
   },
   {
     name: 'lkoo',
-    number: 59
+    number: 209
   },
   {
     name: 'lpoo',
-    number: 59
+    number: 223
   },
 ]
 
@@ -81,11 +83,18 @@ const App: React.FC = () => {
         .data(datas)
         .enter()
         .append('rect')
-        .attr('width', x.bandwidth )
-        .attr('height', d=> dimensions.height - y(d.number))
-        .attr('x', d=>x(d.name)!)
-        .attr('y', d=>y(d.number)!)
         .attr('fill', 'cyan')
+        .attr('x', d=>x(d.name)!)
+        .attr('y', dimensions.height)
+        .attr('width', x.bandwidth ) 
+        .attr('height', 0)
+        .transition()
+        .duration(500)
+        .ease(easeElastic)
+        .delay((_,i) =>i*10)
+        .attr('height', d=> dimensions.height - y(d.number))
+        .attr('y', d=>y(d.number))
+        
     }
   }, [selection])
 
@@ -107,23 +116,39 @@ const App: React.FC = () => {
 
       rects
         .exit()
+        // .attr("height", dimensions.height)
+        // .attr('y', dimensions.height)
+        .transition()
+        .duration(200)
+        .delay(500)
+
+        .attr("height", 0)
+        .attr('y', dimensions.height)
         .remove()
 
-      rects
+      rects //rectangles that are in the DOm previously
+        .transition()
+        .duration(300)
         .attr('width', x.bandwidth )
         .attr('height', d=> dimensions.height - y(d.number))
         .attr('x', d=>x(d.name)!)
         .attr('y', d=>y(d.number)!)
         .attr('fill', 'cyan')
 
-      rects
+      rects //rectangles that were just added to tha DOM
         .enter()
         .append('rect')
         .attr('width', x.bandwidth  )
-        .attr('height', d=> dimensions.height - y(d.number))
+        .attr('height', 0)
         .attr('x', d=>x(d.name)!)
-        .attr('y', d=>y(d.number)!)
+        .attr('y', dimensions.height)
         .attr('fill', 'cyan')
+        .transition()
+        .duration(500)
+        .ease(easeElastic)
+        .delay(200)
+        .attr('y', d=>y(d.number)!)
+        .attr('height', d=> dimensions.height - y(d.number))
 
     }
   }, [datas])
@@ -132,7 +157,7 @@ const App: React.FC = () => {
     const dataTobeAdded = {
       // name: randomstring.generate(10),
       name: `clay-${datas.length}`, ///you need to understand how much opf a stress this same name and need of name difference put me through yesterdayu and today 08-09/11/21
-      number: Math.floor(Math.random() * (80) + 20) 
+      number: Math.floor(Math.random() * (Math.max(...datas.map((a) => a.number))-Math.min(...datas.map((a) => a.number))) + 20) 
     }
     console.log(datas, "b4");
     console.log([ dataTobeAdded, ...datas]);
